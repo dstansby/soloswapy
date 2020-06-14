@@ -7,7 +7,8 @@ __all__ = ['CDF']
 unit_dict = {'Degrees': u.deg,
              'ElectronVolts': u.eV,
              'Counts/Accum': u.dimensionless_unscaled,
-             'Total Counts': u.dimensionless_unscaled}
+             'Total Counts': u.dimensionless_unscaled,
+             'None': u.dimensionless_unscaled}
 
 
 def parse_units(unit_str):
