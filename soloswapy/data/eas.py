@@ -3,7 +3,7 @@ import cdflib
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolor
 
-from .core import registry, DistributionFunctionBase
+from .core import registry, DistributionFunctionBase, DataBase
 from soloswapy.visualisation import DistributionFunctionVisualiser, PitchAngleVisualiser
 
 __all__ = ['EAS3DDistribution']
@@ -91,8 +91,6 @@ class EAS2DPitchAngles(EASDistribution):
         if not self._is_source_for(cdf):
             raise ValueError('This is not a source for the given CDF')
 
-        print(cdf.zvars)
-
         self._times = cdf.varget_time('SWA_EAS_SCET')
         self._elevation = cdf.varget_units('SWA_EAS_ELEVATION')
         # self._elevation_d_upper = cdf.varget_units('SWA_EAS_ELEVATION_delta_upper')
@@ -154,4 +152,29 @@ class EAS2DPitchAngles(EASDistribution):
         return cdf.descriptor == 'SWA-EAS-2DBurstc'
 
 
-registry += [EAS3DDistribution, EAS2DPitchAngles]
+class EASPartialMoms(DataBase):
+    def __init__(self, cdf):
+        """
+        Parameters
+        ----------
+        cdf : CDF
+            An open CDF file.
+        """
+        if not self._is_source_for(cdf):
+            raise ValueError('This is not a source for the given CDF')
+
+        print(cdf.zvars)
+        self._times = cdf.varget_time('SWA_EAS_SCET')
+
+    def peek(self):
+        pass
+
+    @staticmethod
+    def _is_source_for(cdf):
+        """
+        Returns true if *cdf* is a EAS partial moments.
+        """
+        return cdf.descriptor == 'SWA-EAS-PartMoms'
+
+
+registry += [EAS3DDistribution, EAS2DPitchAngles, EASPartialMoms]

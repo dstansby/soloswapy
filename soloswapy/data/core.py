@@ -6,7 +6,13 @@ from .util import CDF
 registry = []
 
 
-class DistributionFunctionBase(abc.ABC):
+class DataBase(abc.ABC):
+    @abc.abstractmethod
+    def __init__(self, cdf):
+        """
+        Initialise object from CDF file.
+        """
+
     @abc.abstractmethod
     def peek(self):
         """
@@ -21,9 +27,13 @@ class DistributionFunctionBase(abc.ABC):
         """
 
 
-class DistributionFunctionFactory:
+class DistributionFunctionBase(DataBase):
+    pass
+
+
+class DataFactory:
     """
-    A distribution function.
+    Factory for reading in different SWA data sources.
     """
     def __init__(self):
         pass
@@ -40,8 +50,8 @@ class DistributionFunctionFactory:
         if len(sources) > 1:
             raise RuntimeError('CDF file matched more than one source')
         elif len(sources) == 0:
-            raise RuntimeError('No sources found for CDF file')
+            raise RuntimeError(f'No sources found for CDF file with descriptor {cdf.descriptor}')
         return sources[0](cdf)
 
 
-DistributionFunction = DistributionFunctionFactory()
+load = DataFactory()
