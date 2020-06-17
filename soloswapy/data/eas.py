@@ -24,6 +24,7 @@ class EAS3DDistribution(EASDistribution):
         cdf : CDF
             An open CDF file.
         """
+        self.cdf = cdf
         if not self._is_source_for(cdf):
             raise ValueError('This is not a source for the given CDF')
 
@@ -32,6 +33,9 @@ class EAS3DDistribution(EASDistribution):
         self._azimuth = cdf.varget_units('SWA_EAS_AZIMUTH')
         self._energy = cdf.varget_units('SWA_EAS1_ENERGY')
         self._data = cdf.varget_units('SWA_EAS1_Data')
+
+    def __add__(self, other):
+        raise NotImplementedError()
 
     @property
     def times(self):
@@ -68,7 +72,7 @@ class EAS3DDistribution(EASDistribution):
         """
         return self._data
 
-    def peek(self, energies):
+    def peek(self, energies='all'):
         """
         Show an interactive overview of the data.
         """
@@ -91,6 +95,7 @@ class EAS2DPitchAngles(EASDistribution):
         cdf : CDF
             An open CDF file.
         """
+        self.cdf = cdf
         if not self._is_source_for(cdf):
             raise ValueError('This is not a source for the given CDF')
 
@@ -107,6 +112,9 @@ class EAS2DPitchAngles(EASDistribution):
         self._eas_used = cdf.varget('SWA_EAS_EasUsed')
         self._elevation_used = cdf.varget('SWA_EAS_ElevationUsed')
         self._mag_data = cdf.varget_units('SWA_EAS_MagDataUsed')
+
+    def __add__(self, other):
+        raise NotImplementedError()
 
     @property
     def times(self):
@@ -163,6 +171,7 @@ class EASPartialMoms(DataBase):
         cdf : CDF
             An open CDF file.
         """
+        self.cdf = cdf
         if not self._is_source_for(cdf):
             raise ValueError('This is not a source for the given CDF')
 
@@ -197,6 +206,9 @@ class EASPartialMoms(DataBase):
                         df1[var_name] = var_data[:, i]
                         units1[var_name] = var_data.unit
         self.ts1 = GenericTimeSeries(df1, units=units1)
+
+    def __add__(self, other):
+        raise NotImplementedError()
 
     def peek(self):
         fig, axs = plt.subplots(nrows=4, sharex=True)
