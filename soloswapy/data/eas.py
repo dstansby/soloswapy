@@ -205,7 +205,8 @@ class EASPartialMoms(DataBase):
                 if var[-1] == var_type or var[-3] == var_type:
                     ax.plot(self.ts1.index, self.ts1.quantity(var), label=var)
 
-        ax.legend()
+        for ax in axs:
+            ax.legend()
         plt.show()
 
     @staticmethod
