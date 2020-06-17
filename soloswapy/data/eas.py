@@ -2,11 +2,14 @@ import astropy.units as u
 import cdflib
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolor
+import pandas as pd
+from sunpy.timeseries import GenericTimeSeries
+
 
 from .core import registry, DistributionFunctionBase, DataBase
 from soloswapy.visualisation import DistributionFunctionVisualiser, PitchAngleVisualiser
 
-__all__ = ['EAS3DDistribution']
+__all__ = ['EAS3DDistribution', 'EAS2DPitchAngles', 'EASPartialMoms']
 
 
 class EASDistribution(DistributionFunctionBase):
@@ -163,11 +166,47 @@ class EASPartialMoms(DataBase):
         if not self._is_source_for(cdf):
             raise ValueError('This is not a source for the given CDF')
 
-        print(cdf.zvars)
-        self._times = cdf.varget_time('SWA_EAS_SCET')
+        times1 = cdf.varget_time('SWA_EAS1_SCET')
+        # times2 = cdf.varget_time('SWA_EAS2_SCET')
+
+        # TODO: extract head 2 data
+        df1 = pd.DataFrame(index=times1.to_datetime())
+        units1 = {}
+        for var in cdf.zvars:
+            if 'SWA_EAS1' in var:
+                if var[-1] == 'N':
+                    var_data = cdf.varget_units(var)
+                    df1[var] = var_data.value
+                    units1[var] = var_data.unit
+                elif var[-1] == 'V':
+                    var_data = cdf.varget_units(var)
+                    for i in range(3):
+                        var_name = f'{var}_{i}'
+                        df1[var_name] = var_data[:, i]
+                        units1[var_name] = var_data.unit
+                elif var[-1] == 'P':
+                    var_data = cdf.varget_units(var)
+                    for i in range(6):
+                        var_name = f'{var}_{i}'
+                        df1[var_name] = var_data[:, i]
+                        units1[var_name] = var_data.unit
+                elif var[-1] == 'H':
+                    var_data = cdf.varget_units(var)
+                    for i in range(3):
+                        var_name = f'{var}_{i}'
+                        df1[var_name] = var_data[:, i]
+                        units1[var_name] = var_data.unit
+        self.ts1 = GenericTimeSeries(df1, units=units1)
 
     def peek(self):
-        pass
+        fig, axs = plt.subplots(nrows=4, sharex=True)
+        for var in self.ts1.to_dataframe():
+            for var_type, ax in zip(['N', 'V', 'P', 'H'], axs):
+                if var[-1] == var_type or var[-3] == var_type:
+                    ax.plot(self.ts1.index, self.ts1.quantity(var), label=var)
+
+        ax.legend()
+        plt.show()
 
     @staticmethod
     def _is_source_for(cdf):
