@@ -60,7 +60,7 @@ class DistributionFunctionVisualiser:
 
 
 class PitchAngleVisualiser:
-    def __init__(self, distribution, energies='all', ):
+    def __init__(self, distribution, energies='all'):
         """
         Parameters
         ----------
@@ -78,32 +78,24 @@ class PitchAngleVisualiser:
         eidxs = list(range(*energies))
 
         # Calculate number of axes
-        fig, axs = plt.subplots(8, 8, gridspec_kw={'bottom': 0.2})
+        fig, axs = plt.subplots(
+            nenergy, 1, gridspec_kw={'bottom': 0.1, 'hspace': 0.02},
+            sharex=True, sharey=True
+        )
         axs_rav = axs.ravel()[::-1]
         tidx = 1
         ims = []
         for eidx, ax in zip(eidxs, axs_rav):
-            im = ax.imshow(self.dist.total_counts[tidx, :, eidx, :].value,
-                           norm=mcolor.LogNorm())
-            ims.append(im)
-            ax.set_title(self._e_str(tidx, eidx))
-            ax.set_aspect('equal')
+            im = ax.pcolormesh(self.dist.times[1:].to_datetime(),
+                               self.dist.azimuth.to_value(u.deg),
+                               self.dist.total_counts[1:, 0, eidx, :].value.T,
+                               norm=mcolor.LogNorm())
+            # ims.append(im)
+            ax.text(-0.1, 0.5, self._e_str(tidx, eidx), transform=ax.transAxes, ha='center')
+            # ax.set_aspect('equal')
             ax.set_axis_off()
+        axs_rav[0].set_axis_on()
 
-        # Add slider
-        axtime = plt.axes([0.1, 0.1, 0.65, 0.03])
-        stime = widgets.Slider(axtime, 'Time', valmin=0, valmax=ntime - 1,
-                               valinit=tidx, valstep=1)
-
-        # Add update function for slider
-        def update(val):
-            tidx = int(stime.val)
-            for eidx, ax in zip(eidxs, axs_rav):
-                ims[eidx].set_data(self.dist.total_counts[tidx, :, eidx, :].value)
-            ax.set_title(self._e_str(tidx, eidx))
-            stime.valtext.text = str(self.dist.times[tidx])
-
-        stime.on_changed(update)
         plt.show()
 
     def _e_str(self, tidx, eidx):

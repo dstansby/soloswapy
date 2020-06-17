@@ -151,8 +151,8 @@ class EAS2DPitchAngles(EASDistribution):
         """
         return self._data
 
-    def peek(self):
-        vis = PitchAngleVisualiser(self)
+    def peek(self, energies='all'):
+        vis = PitchAngleVisualiser(self, energies)
         plt.show()
 
     @staticmethod
